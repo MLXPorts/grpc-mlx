@@ -6,7 +6,7 @@
 > - **Cython Free-Threading:** Added `# cython: freethreading_compatible=True` directive to `cygrpc.pyx`
 > - **Version:** 1.77.0.999
 > - **Python 3.14+ Required:** Built exclusively for Python 3.14 free-threading builds
-> - **Part of MLX Ecosystem:** Used by [exo-mlx](https://github.com/SolaceHarmony/exo-mlx) for GIL-free distributed inference
+> - **Part of MLX Ecosystem:** Used by [exo-mlx](https://github.com/MLXPorts/exo-mlx) for GIL-free distributed inference
 
 **Installation:**
 ```bash
@@ -14,7 +14,7 @@
 python --version  # Should show Python 3.14.0 or later
 
 # Install from git
-pip install git+https://github.com/SolaceHarmony/grpc-mlx@master
+pip install git+https://github.com/MLXPorts/grpc-mlx@master
 
 # Verify free-threading support (no GIL warnings)
 PYTHON_GIL=0 python -c "import grpc; print(f'gRPC {grpc.__version__} loaded')"
