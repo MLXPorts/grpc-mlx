@@ -36,9 +36,21 @@
 #include "src/core/util/fork.h"
 #include "absl/log/log.h"
 
+// Python 3.14+ free-threading support
+#ifdef __has_include
+#if __has_include(<Python.h>)
+#include <Python.h>
+#endif
+#endif
+
 //
 // NOTE: FORKING IS NOT GENERALLY SUPPORTED, THIS IS ONLY INTENDED TO WORK
 //       AROUND VERY SPECIFIC USE CASES.
+//
+// FREE-THREADING NOTE: In Python 3.14+ free-threaded builds (Py_GIL_DISABLED),
+//       fork handlers are skipped entirely. Python's free-threading model
+//       handles thread coordination differently, and attempting to use GIL-era
+//       fork synchronization causes spurious warnings without benefit.
 //
 
 namespace {
@@ -48,6 +60,17 @@ bool registered_handlers = false;
 
 void grpc_prefork() {
   skipped_handler = true;
+
+#ifdef Py_GIL_DISABLED
+  // Python 3.14+ free-threaded build detected
+  // Skip fork handlers entirely - Python handles thread coordination
+  // differently without the GIL, and traditional fork handlers are
+  // unnecessary and produce spurious warnings.
+  VLOG(2) << "Python free-threading mode detected (Py_GIL_DISABLED), "
+             "skipping gRPC fork handlers";
+  return;
+#endif
+
   // This  may be called after core shuts down, so verify initialized before
   // instantiating an ExecCtx.
   if (!grpc_core::IsInitializedInternally()) {
